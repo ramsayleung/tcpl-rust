@@ -1,6 +1,5 @@
 use std::io::{self, Read, Write};
 use std::io::prelude::*;
-use std::fs::File;
 const LOWER: i32 = 0;
 const UPPER: i32 = 300;
 const STEP: i32 = 20;
@@ -319,7 +318,7 @@ pub fn convert_space_to_tab_and_space() {
     let mut stdin = io::stdin();
     let mut buffer: Vec<u8> = vec![];
     match stdin.read_to_end(&mut buffer) {
-        Ok(bytes) => {
+        Ok(_bytes) => {
             let input = String::from_utf8(buffer).unwrap().replace("    ", "\t");
             println!("{}", input);
         }
@@ -331,24 +330,51 @@ pub fn truncate_line() {
     let mut stdin = io::stdin();
     let mut buffer: Vec<u8> = vec![];
     match stdin.read_to_end(&mut buffer) {
-        Ok(bytes) => {
+        Ok(_bytes) => {
             let input = String::from_utf8(buffer).unwrap();
-            let chars_number = input.chars().count();
-            if (chars_number < 80) {
-                let tab_pos = input.rfind('\t').unwrap();
-                let space_pos = input.rfind(' ').unwrap();
-                if (tab_pos > space_pos) {
-                    println!("{}",input.replace("\t", "\n"));
+            let mut counter = 0;
+            let mut new_text: Vec<char> = vec![];
+            for char in input.chars() {
+                if char == '\t' || char == ' ' {
+                    counter = 0;
+                    new_text.push('\n');
                 } else {
-                    println!("{}",input.replace(" ", "\n"));
+                    new_text.push(char);
+                    counter = counter + 1;
                 }
-            }else{
-
+                if counter >= 80 {
+                    new_text.push('\n');
+                    counter = 0;
+                }
             }
+            let text: String = new_text.into_iter().collect();
+            println!("{}", text);
         }
         Err(error) => println!("Error:{}", error),
     }
 }
+// exerceise 1-23
+pub fn clear_comment(input: &str) -> String {
+    let mut single_comment = false;
+    let mut multi_comment = false;
+    let mut chars = input.chars().peekable();
+    let mut result = String::new();
+    while let Some(c) = chars.next() {
+        let next = chars.peek().cloned();
+        match c {
+            '\n' if single_comment => single_comment = false,
+            '*' if multi_comment && next == Some('/') => multi_comment = false,
+            '/' if next == Some('/') => {
+                single_comment = true;
+                chars.next();
+            }
+            // TODO: other cases
+            _ => result.push(c),
+        }
+    }
+    result
+}
+
 #[cfg(test)]
 mod tests {
     #[test]

@@ -1,7 +1,6 @@
 [package]
-name = "chapter1"
+name = "chapter2"
 version = "0.1.0"
 authors = ["Samray Leung <samrayleung@gmail.com>"]
 
 [dependencies]
-regex = "0.2"
